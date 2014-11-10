@@ -11036,6 +11036,12 @@ public final class Settings {
                 "extra_automatic_power_save_mode";
 
         /**
+         * Whether to allow one finger quick settings expansion on the right side of the statusbar.
+         * @hide
+         */
+        public static final String STATUS_BAR_QUICK_QS_PULLDOWN = "status_bar_quick_qs_pulldown";
+
+        /**
          * Volume panel on left
          * @hide
          */
