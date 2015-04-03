@@ -105,4 +105,5 @@ interface ILockSettings {
     boolean isWeakEscrowTokenValid(long handle, in byte[] token, int userId);
     void sanitizePassword();
     String getPassword();
+    byte getLockPatternSize(int userId);
 }
