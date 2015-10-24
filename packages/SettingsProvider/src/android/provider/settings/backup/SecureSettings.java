@@ -225,6 +225,7 @@ public class SecureSettings {
         Settings.Secure.LOCK_SCREEN_WEATHER_ENABLED,
         Settings.Secure.ACCESSIBILITY_FONT_SCALING_HAS_BEEN_CHANGED,
         Settings.Secure.TETHERING_ALLOW_VPN_UPSTREAMS,
-        Settings.Secure.STATUS_BAR_CLOCK_POSITION
+        Settings.Secure.STATUS_BAR_CLOCK_POSITION,
+        Settings.Secure.POWER_MENU_HIDE_ON_SECURE
     };
 }
