@@ -38,4 +38,7 @@
     <!-- AOD QS tile -->
     <string name="quick_settings_aod_label">Always-on display</string>
 
+    <!-- Title of statusbar tuner -->
+    <string name="status_bar_icons">Status bar icons</string>
+
 </resources>
