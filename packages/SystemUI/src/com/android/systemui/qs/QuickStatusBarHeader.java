@@ -16,6 +16,7 @@ package com.android.systemui.qs;
 
 import static android.app.StatusBarManager.DISABLE2_QUICK_SETTINGS;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.provider.Settings.Secure.NETWORK_TRAFFIC_LOCATION;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.AlarmClock;
 import android.provider.CalendarContract;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.DisplayCutout;
@@ -37,7 +39,8 @@ import android.view.WindowInsets;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Space;
-
+import com.android.systemui.tuner.TunerService;
+import com.android.systemui.Dependency;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -52,6 +55,7 @@ import com.android.systemui.statusbar.phone.StatusBarIconController;
 import com.android.systemui.statusbar.phone.StatusBarIconController.TintedIconManager;
 import com.android.systemui.statusbar.phone.StatusIconContainer;
 import com.android.systemui.statusbar.policy.Clock;
+import com.android.systemui.statusbar.policy.NetworkTraffic;
 import com.android.systemui.statusbar.policy.VariableDateView;
 import com.android.systemui.util.LargeScreenUtils;
 import com.android.systemui.tuner.TunerService;
@@ -131,6 +135,9 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
     private static final int BATTERY_STYLE_DOTTED_CIRCLE = 2;
     private static final int BATTERY_STYLE_FULL_CIRCLE = 3;
 
+    private NetworkTraffic mNetworkTraffic;
+    private boolean mShowNetworkTraffic;
+
     public QuickStatusBarHeader(Context context, AttributeSet attrs) {
         super(context, attrs);
         mActivityStarter = Dependency.get(ActivityStarter.class);
@@ -173,7 +180,10 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
         // Tint for the battery icons are handled in setupHost()
         mBatteryRemainingIcon = findViewById(R.id.batteryRemainingIcon);
 
+        mNetworkTraffic = findViewById(R.id.network_traffic);
+
         updateResources();
+
         Configuration config = mContext.getResources().getConfiguration();
         setDatePrivacyContainersWidth(config.orientation == Configuration.ORIENTATION_LANDSCAPE);
 
@@ -189,7 +199,7 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
                 .build();
 
         Dependency.get(TunerService.class).addTunable(this,
-                StatusBarIconController.ICON_HIDE_LIST);
+                StatusBarIconController.ICON_HIDE_LIST, NETWORK_TRAFFIC_LOCATION);
     }
 
     void onAttach(TintedIconManager iconManager,
@@ -347,6 +357,7 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
             }
             mBatteryRemainingIcon.updateColors(mTextColorPrimary, textColorSecondary,
                     mTextColorPrimary);
+            mNetworkTraffic.setTint(textColor);
         }
 
         MarginLayoutParams qqsLP = (MarginLayoutParams) mHeaderQsPanel.getLayoutParams();
@@ -445,7 +456,8 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
     }
 
     void setChipVisibility(boolean visibility) {
-        if (visibility) {
+        mNetworkTraffic.setChipVisibility(visibility);
+        if (visibility || mShowNetworkTraffic) {
             // Animates the icons and battery indicator from alpha 0 to 1, when the chip is visible
             mIconsAlphaAnimator = mIconsAlphaAnimatorFixed;
             mIconsAlphaAnimator.setPosition(mKeyguardExpansionFraction);
@@ -642,7 +654,18 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
 
     @Override
     public void onTuningChanged(String key, String newValue) {
-        mClockView.setClockVisibleByUser(!StatusBarIconController.getIconHideList(
-                mContext, newValue).contains("clock"));
+        switch (key) {
+            case StatusBarIconController.ICON_HIDE_LIST:
+                mClockView.setClockVisibleByUser(!StatusBarIconController.getIconHideList(
+                        mContext, newValue).contains("clock"));
+                break;
+            case NETWORK_TRAFFIC_LOCATION:
+                mShowNetworkTraffic =
+                        TunerService.parseInteger(newValue, 0) == 2;
+                setChipVisibility(mPrivacyChip.getVisibility() == View.VISIBLE);
+                break;
+            default:
+                break;
+        }
     }
 }
