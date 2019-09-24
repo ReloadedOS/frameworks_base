@@ -93,5 +93,6 @@ public class SystemSettings {
         Settings.System.SHOW_AUTO_BRIGHTNESS_BUTTON,
         Settings.System.BRIGHTNESS_SLIDER_POSITION,
         Settings.System.SHOW_FOURG_ICON,
+        Settings.System.DOUBLE_TAP_SLEEP_GESTURE
     };
 }
