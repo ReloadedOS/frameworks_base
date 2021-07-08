@@ -56,4 +56,7 @@
     <java-symbol type="integer" name="config_proximityCheckTimeout" />
     <java-symbol type="bool" name="config_proximityCheckOnWakeEnabledByDefault" />
 
+    <!-- For dynamic default font styles -->
+    <java-symbol type="string" name="config_bodyFontFamily" />
+
 </resources>
