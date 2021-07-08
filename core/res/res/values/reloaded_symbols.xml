@@ -37,4 +37,7 @@
     <java-symbol type="string" name="config_stockFingerprint" />
     <java-symbol type="string" name="config_netflixSpoofModel" />
 
+    <!-- For dynamic default font styles -->
+    <java-symbol type="string" name="config_bodyFontFamily" />
+
 </resources>
