@@ -456,21 +456,17 @@ public class PhoneStatusBarPolicy
                 mResources.getString(R.string.accessibility_quick_settings_bluetooth_on);
         boolean bluetoothVisible = false;
         int batteryLevel = -1;
-        if (mBluetooth != null) {
-            if (mBluetooth.isBluetoothConnected()
-                    && (mBluetooth.isBluetoothAudioActive()
-                    || !mBluetooth.isBluetoothAudioProfileOnly())) {
-                List<CachedBluetoothDevice> connectedDevices = mBluetooth.getConnectedDevices();
-                batteryLevel = connectedDevices.isEmpty() ? BATTERY_LEVEL_UNKNOWN
-                        : connectedDevices.stream()
-                                          .mapToInt(device -> device.getBatteryLevel())
-                                          .filter(level -> level != BATTERY_LEVEL_UNKNOWN)
-                                          .findFirst()
-                                          .orElse(BATTERY_LEVEL_UNKNOWN);
-                bluetoothVisible = mBluetooth.isBluetoothEnabled();
-                contentDescription = mResources.getString(
-                        R.string.accessibility_bluetooth_connected);
-            }
+        if (mBluetooth != null && mBluetooth.isBluetoothConnected()) {
+            List<CachedBluetoothDevice> connectedDevices = mBluetooth.getConnectedDevices();
+            batteryLevel = connectedDevices.isEmpty() ? BATTERY_LEVEL_UNKNOWN
+                    : connectedDevices.stream()
+                                      .mapToInt(device -> device.getBatteryLevel())
+                                      .filter(level -> level != BATTERY_LEVEL_UNKNOWN)
+                                      .findFirst()
+                                      .orElse(BATTERY_LEVEL_UNKNOWN);
+            bluetoothVisible = mBluetooth.isBluetoothEnabled();
+            contentDescription = mResources.getString(
+                    R.string.accessibility_bluetooth_connected);
         }
 
         mIconController.setBluetoothIcon(mSlotBluetooth,
