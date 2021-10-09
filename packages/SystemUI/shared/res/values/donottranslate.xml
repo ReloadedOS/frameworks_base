@@ -20,4 +20,8 @@
 
     <!-- Skeleton string format for displaying the time in 24-hour format. -->
     <string name="clock_24hr_format">Hm</string>
+
+    <!-- Maximum vertical offset of statusbar for burn-in protection -->
+    <dimen name="status_bar_offset_max_y">4dp</dimen>
+
 </resources>
