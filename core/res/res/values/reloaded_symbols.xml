@@ -59,4 +59,8 @@
     <!-- For dynamic default font styles -->
     <java-symbol type="string" name="config_bodyFontFamily" />
 
+    <!-- App lock -->
+    <java-symbol type="string" name="unlock_application" />
+    <java-symbol type="array" name="config_appLockAllowedSystemApps" />
+
 </resources>
