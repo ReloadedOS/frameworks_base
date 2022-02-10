@@ -179,6 +179,7 @@ android_library {
         "LowLightDreamLib",
         "motion_tool_lib",
         "bcsmartspace-google",
+        "faceunlock_framework",
     ],
     manifest: "AndroidManifest.xml",
     libs: [
