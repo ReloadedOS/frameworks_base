@@ -42,6 +42,7 @@ import android.service.vr.IVrManager;
 import android.service.vr.IVrStateCallbacks;
 import android.util.Log;
 import android.util.MathUtils;
+import android.view.View;
 
 import com.android.internal.display.BrightnessSynchronizer;
 import com.android.internal.logging.MetricsLogger;
@@ -85,6 +86,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
     private final Executor mMainExecutor;
     private final Handler mBackgroundHandler;
     private final BrightnessObserver mBrightnessObserver;
+    private final AutoBrightnessController mAutoBrightnessController;
 
     private final DisplayTracker.Callback mBrightnessListener = new DisplayTracker.Callback() {
         @Override
@@ -106,6 +108,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
     @Override
     public void setMirror(BrightnessMirrorController controller) {
         mControl.setMirrorControllerAndMirror(controller);
+        mAutoBrightnessController.setMirror(controller);
     }
 
     /** ContentObserver to watch brightness */
@@ -290,7 +293,8 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
             UserTracker userTracker,
             DisplayTracker displayTracker,
             @Main Executor mainExecutor,
-            @Background Handler bgHandler) {
+            @Background Handler bgHandler,
+            AutoBrightnessController autoBrightnessController) {
         mContext = context;
         mControl = control;
         mControl.setMax(GAMMA_SPACE_MAX);
@@ -299,6 +303,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         mUserTracker = userTracker;
         mDisplayTracker = displayTracker;
         mBrightnessObserver = new BrightnessObserver(mHandler);
+        mAutoBrightnessController = autoBrightnessController;
 
         mDisplayId = mContext.getDisplayId();
         PowerManager pm = context.getSystemService(PowerManager.class);
@@ -314,10 +319,12 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
 
     public void registerCallbacks() {
         mBackgroundHandler.post(mStartListeningRunnable);
+        mAutoBrightnessController.registerCallbacks();
     }
 
     /** Unregister all call backs, both to and from the controller */
     public void unregisterCallbacks() {
+        mAutoBrightnessController.unregisterCallbacks();
         mBackgroundHandler.post(mStopListeningRunnable);
         mControlValueInitialized = false;
     }
@@ -451,6 +458,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         private final DisplayTracker mDisplayTracker;
         private final Executor mMainExecutor;
         private final Handler mBackgroundHandler;
+        private final AutoBrightnessController.Factory mAutoBrightnessControllerFactory;
 
         @Inject
         public Factory(
@@ -458,23 +466,27 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
                 UserTracker userTracker,
                 DisplayTracker displayTracker,
                 @Main Executor mainExecutor,
-                @Background Handler bgHandler) {
+                @Background Handler bgHandler,
+                AutoBrightnessController.Factory autoBrightnessControllerFactory) {
             mContext = context;
             mUserTracker = userTracker;
             mDisplayTracker = displayTracker;
             mMainExecutor = mainExecutor;
             mBackgroundHandler = bgHandler;
+            mAutoBrightnessControllerFactory = autoBrightnessControllerFactory;
         }
 
         /** Create a {@link BrightnessController} */
-        public BrightnessController create(ToggleSlider toggleSlider) {
+        public BrightnessController create(ToggleSlider toggleSlider,
+                View brightnessSliderView) {
             return new BrightnessController(
                     mContext,
                     toggleSlider,
                     mUserTracker,
                     mDisplayTracker,
                     mMainExecutor,
-                    mBackgroundHandler);
+                    mBackgroundHandler,
+                    mAutoBrightnessControllerFactory.create(brightnessSliderView));
         }
     }
 
