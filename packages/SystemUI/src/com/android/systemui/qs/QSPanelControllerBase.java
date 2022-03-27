@@ -23,14 +23,20 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.metrics.LogMaker;
 import android.util.Log;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.view.View;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEventLogger;
 import com.android.systemui.Dumpable;
+import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dump.DumpManager;
 import com.android.systemui.media.MediaHost;
 import com.android.systemui.plugins.qs.QSTile;
@@ -41,6 +47,7 @@ import com.android.systemui.qs.logging.QSLogger;
 import com.android.systemui.util.LargeScreenUtils;
 import com.android.systemui.util.ViewController;
 import com.android.systemui.util.animation.DisappearParameters;
+import com.android.systemui.util.settings.SystemSettings;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -122,6 +129,9 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
     @Nullable
     private Runnable mUsingHorizontalLayoutChangedListener;
 
+    protected final SystemSettings mSystemSettings;
+    private final ContentObserver mSettingsObserver;
+
     protected QSPanelControllerBase(
             T view,
             QSTileHost host,
@@ -131,7 +141,9 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
             MetricsLogger metricsLogger,
             UiEventLogger uiEventLogger,
             QSLogger qsLogger,
-            DumpManager dumpManager
+            DumpManager dumpManager,
+            @Main Handler mainHandler,
+            SystemSettings systemSettings
     ) {
         super(view);
         mHost = host;
@@ -144,6 +156,30 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
         mDumpManager = dumpManager;
         mShouldUseSplitNotificationShade =
                 LargeScreenUtils.shouldUseSplitNotificationShade(getResources());
+        mSystemSettings = systemSettings;
+        mSettingsObserver = new ContentObserver(mainHandler) {
+            @Override
+            public void onChange(boolean selfChange, @Nullable Uri uri) {
+                if (uri == null) return;
+                final String key = uri.getLastPathSegment();
+                if (key == null) return;
+                handleSettingsChange(key);
+            }
+        };
+    }
+
+    protected boolean handleSettingsChange(@NonNull String key) {
+        if (Settings.System.BRIGHTNESS_SLIDER_POSITION.equals(key)) {
+            mView.updateBrightnessView(isSliderAtTop());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isSliderAtTop() {
+        return mSystemSettings.getIntForUser(
+            Settings.System.BRIGHTNESS_SLIDER_POSITION,
+            0, UserHandle.USER_CURRENT) == 0;
     }
 
     @Override
@@ -165,6 +201,8 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
 
     @Override
     protected void onViewAttached() {
+        mView.updateBrightnessView(isSliderAtTop());
+        registerObserver(Settings.System.BRIGHTNESS_SLIDER_POSITION);
         mQsTileRevealController = createTileRevealController();
         if (mQsTileRevealController != null) {
             mQsTileRevealController.setExpansion(mRevealExpansion);
@@ -179,6 +217,11 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
         switchTileLayout(true);
 
         mDumpManager.registerDumpable(mView.getDumpableTag(), this);
+    }
+
+    protected void registerObserver(String key) {
+        mSystemSettings.registerContentObserverForUser(
+            key, mSettingsObserver, UserHandle.USER_ALL);
     }
 
     @Override
@@ -196,6 +239,7 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
         }
         mRecords.clear();
         mDumpManager.unregisterDumpable(mView.getDumpableTag());
+        mSystemSettings.unregisterContentObserver(mSettingsObserver);
     }
 
     @Nullable
@@ -342,6 +386,7 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
                     mView.getDumpableTag());
             mUsingHorizontalLayout = horizontal;
             mView.setUsingHorizontalLayout(mUsingHorizontalLayout, mMediaHost.getHostView(), force);
+            updateBrightnessMirror();
             updateMediaDisappearParameters();
             if (mUsingHorizontalLayoutChangedListener != null) {
                 mUsingHorizontalLayoutChangedListener.run();
@@ -350,6 +395,8 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
         }
         return false;
     }
+
+    protected abstract void updateBrightnessMirror();
 
     /**
      * Update the way the media disappears based on if we're using the horizontal layout
