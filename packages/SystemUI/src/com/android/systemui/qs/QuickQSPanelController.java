@@ -112,13 +112,21 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
         final boolean handled = super.handleSettingsChange(key);
         if (key.equals(Settings.System.BRIGHTNESS_SLIDER_POSITION)) {
             updateBrightnessMirror();
+            return true;
         } else if (key.equals(Settings.System.QQS_SHOW_BRIGHTNESS)) {
-            mForceShowSlider = shouldShowSlider();
-            mBrightnessController.refreshVisibility(mForceShowSlider,
-                mShouldUseSplitNotificationShade);
+            updateSliderVisibility();
             return true;
         }
         return handled;
+    }
+
+    private void updateSliderVisibility() {
+        mForceShowSlider = mSystemSettings.getIntForUser(
+            Settings.System.QQS_SHOW_BRIGHTNESS,
+            0, UserHandle.USER_CURRENT
+        ) == 1;
+        mBrightnessController.refreshVisibility(mForceShowSlider,
+            mShouldUseSplitNotificationShade);
     }
 
     @Override
@@ -130,6 +138,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
     protected void onViewAttached() {
         super.onViewAttached();
         mBrightnessMirrorHandler.onQsPanelAttached();
+        updateSliderVisibility();
         registerObserver(Settings.System.QQS_SHOW_BRIGHTNESS);
     }
 
@@ -143,13 +152,6 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
     void setListening(boolean listening) {
         super.setListening(listening);
         mBrightnessController.setListening(listening);
-    }
-
-    private boolean shouldShowSlider() {
-        return mSystemSettings.getIntForUser(
-            Settings.System.QQS_SHOW_BRIGHTNESS,
-            0, UserHandle.USER_CURRENT
-        ) == 1;
     }
 
     public boolean isListening() {
