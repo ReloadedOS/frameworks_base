@@ -52,6 +52,7 @@ import android.telephony.TelephonyDisplayInfo;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.ArraySet;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -65,12 +66,15 @@ import com.android.settingslib.mobile.MobileStatusTracker.MobileStatus;
 import com.android.settingslib.mobile.MobileStatusTracker.SubscriptionDefaults;
 import com.android.settingslib.mobile.TelephonyIcons;
 import com.android.settingslib.net.SignalStrengthUtil;
+import com.android.systemui.Dependency;
 import com.android.systemui.R;
+import com.android.systemui.statusbar.phone.StatusBarIconController;
 import com.android.systemui.statusbar.policy.FiveGServiceClient;
 import com.android.systemui.statusbar.policy.FiveGServiceClient.FiveGServiceState;
 import com.android.systemui.statusbar.policy.FiveGServiceClient.IFiveGStateListener;
 import com.android.systemui.flags.FeatureFlags;
 import com.android.systemui.flags.Flags;
+import com.android.systemui.tuner.TunerService;
 import com.android.systemui.util.CarrierConfigTracker;
 
 import java.io.PrintWriter;
@@ -117,6 +121,23 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
     private int mMobileStatusHistoryIndex;
 
     private int mCallState = TelephonyManager.CALL_STATE_IDLE;
+
+    private boolean mHideRoaming;
+    private boolean mHideVolte;
+    private boolean mHideVowifi;
+
+    private static final String KEY_ROAMING = "roaming";
+    private static final String KEY_VOLTE = "volte";
+    private static final String KEY_VOWIFI = "vowifi";
+
+    private final TunerService mTunerService;
+    private final TunerService.Tunable mTunable = (key, value) -> {
+        ArraySet<String> hideList = StatusBarIconController.getIconHideList(mContext, value);
+        mHideRoaming = hideList.contains(KEY_ROAMING);
+        mHideVolte = hideList.contains(KEY_VOLTE);
+        mHideVowifi = hideList.contains(KEY_VOWIFI);
+        notifyListeners();
+    };
 
     /****************************SideCar****************************/
     @VisibleForTesting
@@ -246,7 +267,7 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
                 R.string.status_bar_network_name_separator).toString();
         mNetworkNameDefault = getTextIfExists(
                 com.android.internal.R.string.lockscreen_carrier_default).toString();
-
+        mTunerService = Dependency.get(TunerService.class);
         mNetworkToIconLookup = mapIconSets(mConfig);
         mDefaultIcons = getDefaultIcons(mConfig);
 
@@ -325,6 +346,7 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
                 Log.e(mTag, "failed to call registerImsStateCallback ", exception);
             }
         }
+        mTunerService.addTunable(mTunable, StatusBarIconController.ICON_HIDE_LIST);
     }
 
     /**
@@ -337,6 +359,7 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
         if (mConfig.showVolteIcon || mConfig.showVowifiIcon) {
             mImsMmTelManager.unregisterImsStateCallback(mImsStateCallback);
         }
+        mTunerService.removeTunable(mTunable);
     }
 
     private void updateInflateSignalStrength() {
@@ -370,7 +393,8 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
             if (mConfig.hideNoInternetState) {
                 cutOut = false;
             }
-            return SignalDrawable.getState(level, getNumLevels(), cutOut);
+            return SignalDrawable.getState(level, getNumLevels(), cutOut,
+                    !mHideRoaming && isRoaming());
         } else if (mCurrentState.enabled) {
             return SignalDrawable.getEmptyState(getNumLevels());
         } else {
@@ -385,15 +409,9 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
 
     private int getVolteResId() {
         int resId = 0;
-        int voiceNetTye = mCurrentState.getVoiceNetworkType();
         if ( (mCurrentState.voiceCapable || mCurrentState.videoCapable)
                 &&  mCurrentState.imsRegistered ) {
             resId = R.drawable.ic_volte;
-        }else if ( (mCurrentState.telephonyDisplayInfo.getNetworkType() == TelephonyManager.NETWORK_TYPE_LTE
-                    || mCurrentState.telephonyDisplayInfo.getNetworkType() ==
-                        TelephonyManager.NETWORK_TYPE_LTE_CA)
-                    && voiceNetTye  == TelephonyManager.NETWORK_TYPE_UNKNOWN) {
-            resId = R.drawable.ic_volte_no_voice;
         }
         return resId;
     }
@@ -460,7 +478,8 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
         final QsInfo qsInfo = getQsInfo(contentDescription, icons.dataType);
         final SbInfo sbInfo = getSbInfo(contentDescription, icons.dataType);
 
-        int volteIcon = mConfig.showVolteIcon ? getVolteResId() : 0;
+        int volteIcon = mConfig.showVolteIcon && !mHideVolte
+                && !isVowifiAvailable() ? getVolteResId() : 0;
         MobileDataIndicators mobileDataIndicators = new MobileDataIndicators(
                 sbInfo.icon,
                 qsInfo.icon,
@@ -523,7 +542,7 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
         }
 
         MobileIconGroup vowifiIconGroup = getVowifiIconGroup();
-        if (mConfig.showVowifiIcon && vowifiIconGroup != null) {
+        if (mConfig.showVowifiIcon && !mHideVowifi && vowifiIconGroup != null) {
             typeIcon = vowifiIconGroup.dataType;
             statusIcon = new IconState(true,
                     ((mCurrentState.enabled && !mCurrentState.airplaneMode) ? statusIcon.icon : -1),
@@ -936,14 +955,11 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
     }
 
     private boolean isVowifiAvailable() {
-        return mCurrentState.voiceCapable
-                && mCurrentState.imsRegistrationTech == REGISTRATION_TECH_IWLAN;
+        return mCurrentState.imsRegistrationTech == REGISTRATION_TECH_IWLAN;
     }
 
     private MobileIconGroup getVowifiIconGroup() {
-        if ( isVowifiAvailable() && !isCallIdle() ) {
-            return TelephonyIcons.VOWIFI_CALLING;
-        }else if (isVowifiAvailable()) {
+        if (isVowifiAvailable()) {
             return TelephonyIcons.VOWIFI;
         }else {
             return null;
