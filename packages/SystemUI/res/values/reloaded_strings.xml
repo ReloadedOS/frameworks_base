@@ -63,4 +63,10 @@
     <string name="megabytespersecond_short" translatable="false">MB/s</string>
     <string name="gigabytespersecond_short" translatable="false">GB/s</string>
 
+    <!-- Name of the VoLTE status bar icon. -->
+    <string name="status_bar_volte">VoLTE</string>
+
+    <!-- Name of the VoWiFi status bar icon. -->
+    <string name="status_bar_vowifi">VoWiFi</string>
+
 </resources>
