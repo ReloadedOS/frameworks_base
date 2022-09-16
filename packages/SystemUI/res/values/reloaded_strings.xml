@@ -62,4 +62,10 @@
     <string name="screenrecord_stopdot_label">Show blinking dot</string>
     <string name="screenrecord_stopdot_summary">Tap to stop recording, long press to move</string>
 
+    <!-- Name of the VoLTE status bar icon. -->
+    <string name="status_bar_volte">VoLTE</string>
+
+    <!-- Name of the VoWiFi status bar icon. -->
+    <string name="status_bar_vowifi">VoWiFi</string>
+
 </resources>
