@@ -215,7 +215,7 @@ public class MobileMappings {
         public boolean showAtLeast3G = false;
         public boolean show4gFor3g = false;
         public boolean alwaysShowCdmaRssi = false;
-        public boolean show4gForLte = false;
+        public boolean show4gForLte = true;
         public boolean show4glteForLte = false;
         public boolean hideLtePlus = false;
         public boolean hspaDataDistinguishable;
@@ -243,7 +243,7 @@ public class MobileMappings {
                     res.getBoolean(R.bool.config_hspa_data_distinguishable);
 
             config.show4gForLte = Settings.System.getIntForUser(context.getContentResolver(),
-                     Settings.System.SHOW_FOURG_ICON, 0,
+                     Settings.System.SHOW_FOURG_ICON, 1,
                      UserHandle.USER_CURRENT) == 1;
 
             CarrierConfigManager configMgr = (CarrierConfigManager)
