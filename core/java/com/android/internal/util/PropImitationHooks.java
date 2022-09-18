@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2022 Paranoid Android
+ * Copyright (C) 2022 StatiXOS
  *           (C) 2023 ArrowOS
  *           (C) 2023 The LibreMobileOS Foundation
  *
@@ -60,9 +61,11 @@ public class PropImitationHooks {
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
     private static final String PACKAGE_ASI = "com.google.android.as";
     private static final String PACKAGE_FINSKY = "com.android.vending";
+    private static final String PACKAGE_GBOARD = "com.google.android.inputmethod.latin";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
     private static final String PACKAGE_NETFLIX = "com.netflix.mediaclient";
+    private static final String PACKAGE_SUBSCRIPTION_RED = "com.google.android.apps.subscriptions.red";
     private static final String PACKAGE_SNAPCHAT = "com.snapchat.android";
     private static final String PACKAGE_VELVET = "com.google.android.googlequicksearchbox";
 
@@ -71,6 +74,15 @@ public class PropImitationHooks {
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
+
+    private static final Map<String, Object> sPixel7Props = Map.of(
+        "BRAND", "google",
+        "MANUFACTURER", "Google",
+        "DEVICE", "cheetah",
+        "PRODUCT", "cheetah",
+        "MODEL", "Pixel 7 Pro",
+        "FINGERPRINT", "google/cheetah/cheetah:13/TQ2A.230305.008.C1/9619669:user/release-keys"
+    );
 
     private static final Map<String, Object> sPixelProps = Map.of(
         "BRAND", "google",
@@ -129,12 +141,16 @@ public class PropImitationHooks {
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
-        } else if (sSpoofGapps && (packageName.equals(PACKAGE_VELVET)
-                || packageName.equals(PACKAGE_ASI)
+        } else if (sSpoofGapps && (packageName.equals(PACKAGE_ASI)
                 || (packageName.equals(PACKAGE_GMS)
                     && processName.equals(PROCESS_GMS_PERSISTENT)))) {
             dlog("Spoofing Pixel 5 for: " + packageName + " process: " + processName);
             sPixelProps.forEach(PropImitationHooks::setPropValue);
+        } else if (packageName.equals(PACKAGE_SUBSCRIPTION_RED)
+                || packageName.equals(PACKAGE_VELVET)
+                || packageName.equals(PACKAGE_GBOARD)) {
+            dlog("Spoofing Pixel 7 Pro for: " + packageName + " process: " + processName);
+            sPixel7Props.forEach(PropImitationHooks::setPropValue);
         } else if (sIsPhotos || packageName.equals(PACKAGE_SNAPCHAT)) {
             dlog("Spoofing Pixel XL for: " + packageName);
             sPixelXLProps.forEach(PropImitationHooks::setPropValue);
