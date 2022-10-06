@@ -16,36 +16,34 @@
 
 package com.android.systemui.qs
 
-import androidx.annotation.VisibleForTesting
 import com.android.systemui.settings.brightness.BrightnessController
 import com.android.systemui.settings.brightness.BrightnessSliderController
 import com.android.systemui.settings.brightness.MirroredBrightnessController
 import com.android.systemui.statusbar.policy.BrightnessMirrorController
+
 import javax.inject.Inject
 
 /**
- * Controls brightness slider in QQS, which is visible only in split shade. It's responsible for
+ * Controls brightness slider in QQS. It's responsible for
  * showing/hiding it when appropriate and (un)registering listeners
  */
-class QuickQSBrightnessController @VisibleForTesting constructor(
-    private val brightnessControllerFactory: () -> BrightnessController
+class QuickQSBrightnessController @Inject constructor(
+    private val brightnessControllerFactory: BrightnessController.Factory,
+    private val brightnessSliderControllerFactory: BrightnessSliderController.Factory,
+    private val quickQSPanel: QuickQSPanel
 ) : MirroredBrightnessController {
-
-    @Inject constructor(
-        brightnessControllerFactory: BrightnessController.Factory,
-        brightnessSliderControllerFactory: BrightnessSliderController.Factory,
-        quickQSPanel: QuickQSPanel
-    ) : this(brightnessControllerFactory = {
-            val slider = brightnessSliderControllerFactory.create(
-                quickQSPanel.context, quickQSPanel
-            ).also { it.init() }
-            quickQSPanel.setBrightnessView(slider.rootView)
-            brightnessControllerFactory.create(slider, quickQSPanel.brightnessView)
-        })
 
     private var isListening = false
     private var brightnessController: BrightnessController? = null
     private var mirrorController: BrightnessMirrorController? = null
+
+    private fun createBrightnessController(): BrightnessController {
+        val slider = brightnessSliderControllerFactory.create(
+            quickQSPanel.context, quickQSPanel
+        ).also { it.init() }
+        quickQSPanel.setBrightnessView(slider.rootView)
+        return brightnessControllerFactory.create(slider, quickQSPanel.brightnessView)
+    }
 
     /**
      * Starts/Stops listening for brightness changing events.
@@ -69,11 +67,8 @@ class QuickQSBrightnessController @VisibleForTesting constructor(
         brightnessController?.checkRestrictionAndSetEnabled()
     }
 
-    fun refreshVisibility(
-        forceShowSlider: Boolean,
-        shouldUseSplitNotificationShade: Boolean
-    ) {
-        if (forceShowSlider || shouldUseSplitNotificationShade) {
+    fun refreshVisibility(showSlider: Boolean) {
+        if (showSlider) {
             showBrightnessSlider()
         } else {
             hideBrightnessSlider()
@@ -91,7 +86,7 @@ class QuickQSBrightnessController @VisibleForTesting constructor(
 
     private fun showBrightnessSlider() {
         if (brightnessController == null) {
-            brightnessController = brightnessControllerFactory()
+            brightnessController = createBrightnessController()
             mirrorController?.also { brightnessController?.setMirror(it) }
             brightnessController?.registerCallbacks()
             isListening = true
