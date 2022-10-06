@@ -58,7 +58,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
     private final BrightnessMirrorHandler mBrightnessMirrorHandler;
     private final Provider<Boolean> mUsingCollapsedLandscapeMediaProvider;
 
-    private boolean mForceShowSlider = false;
+    private boolean mShowSlider = false;
 
     @Inject
     QuickQSPanelController(QuickQSPanel view, QSTileHost qsTileHost,
@@ -86,8 +86,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
         updateMediaExpansion();
         mMediaHost.setShowsOnlyActiveMedia(true);
         mMediaHost.init(MediaHierarchyManager.LOCATION_QQS);
-        mBrightnessController.refreshVisibility(mForceShowSlider,
-            mShouldUseSplitNotificationShade);
+        mBrightnessController.refreshVisibility(mShowSlider);
     }
 
     private void updateMediaExpansion() {
@@ -121,12 +120,11 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
     }
 
     private void updateSliderVisibility() {
-        mForceShowSlider = mSystemSettings.getIntForUser(
+        mShowSlider = mSystemSettings.getIntForUser(
             Settings.System.QQS_SHOW_BRIGHTNESS,
             0, UserHandle.USER_CURRENT
         ) == 1;
-        mBrightnessController.refreshVisibility(mForceShowSlider,
-            mShouldUseSplitNotificationShade);
+        mBrightnessController.refreshVisibility(mShowSlider);
     }
 
     @Override
@@ -170,8 +168,7 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
             setMaxTiles(newMaxTiles);
         }
         updateMediaExpansion();
-        mBrightnessController.refreshVisibility(mForceShowSlider,
-            mShouldUseSplitNotificationShade);
+        mBrightnessController.refreshVisibility(mShowSlider);
     }
 
     @Override
@@ -192,5 +189,9 @@ public class QuickQSPanelController extends QSPanelControllerBase<QuickQSPanel> 
 
     public int getNumQuickTiles() {
         return mView.getNumQuickTiles();
+    }
+
+    public void setBrightnessMirror(BrightnessMirrorController brightnessMirrorController) {
+        mBrightnessMirrorHandler.setController(brightnessMirrorController);
     }
 }
