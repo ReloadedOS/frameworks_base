@@ -67,4 +67,7 @@
          unlock pixel-exclusive features -->
     <bool name="config_spoofGoogleApps">true</bool>
 
+    <!-- Whether to show WiFi/Hotspot standard -->
+    <bool name="config_show_network_standard">false</bool>
+
 </resources>
