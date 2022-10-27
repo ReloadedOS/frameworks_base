@@ -69,4 +69,8 @@
     <!-- Name of the VoWiFi status bar icon. -->
     <string name="status_bar_vowifi">VoWiFi</string>
 
+    <!-- Bluetooth dialog -->
+    <string name="bluetooth_is_off">Bluetooth is off</string>
+    <string name="tap_a_device_to_connect">Tap a device to connect</string>
+
 </resources>
