@@ -16,11 +16,6 @@
 -->
 <resources>
 
-    <!-- PropImitiationHooks -->
-    <java-symbol type="string" name="config_certifiedFingerprint" />
-    <java-symbol type="string" name="config_stockFingerprint" />
-    <java-symbol type="bool" name="config_spoofGoogleApps" />
-
     <!-- Package Manager -->
     <java-symbol type="array" name="config_deviceDisabledComponents" />
     <java-symbol type="array" name="config_globallyDisabledComponents" />
