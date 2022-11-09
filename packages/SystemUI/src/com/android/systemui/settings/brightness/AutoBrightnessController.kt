@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.UserHandle
 import android.provider.Settings
+import android.util.Pair
 import android.view.View
 import android.widget.ImageView
 
@@ -70,11 +71,14 @@ class AutoBrightnessController internal constructor(
     }
 
     private fun updateIcon(onlyUpdateMirror: Boolean = false) {
-        val resId = getIconResId()
+        val pair = getIconResIdPair()
         mainHandler.post {
-            if (!onlyUpdateMirror) autoBrightnessIcon.setImageResource(resId)
+            if (!onlyUpdateMirror) {
+                autoBrightnessIcon.setImageResource(pair.first)
+                autoBrightnessIcon.setBackgroundResource(pair.second)
+            }
             mirrorController?.let {
-                it.updateAutoBrightnessIcon(resId)
+                it.updateAutoBrightnessIcon(pair)
             }
         }
     }
@@ -97,11 +101,12 @@ class AutoBrightnessController internal constructor(
             0, UserHandle.USER_CURRENT
         ) == 1
 
-    private fun getIconResId() =
+    private fun getIconResIdPair() =
+        /* icon, background */
         if (isAutoBrightnessEnabled())
-            R.drawable.auto_brightness_icon_on
+            Pair(R.drawable.ic_qs_brightness_auto_on, R.drawable.bg_qs_brightness_auto_on)
         else
-            R.drawable.ic_brightness_full
+            Pair(R.drawable.ic_qs_brightness_auto_off, R.drawable.bg_qs_brightness_auto_off)
 
     fun registerCallbacks() {
         if (callbacksRegistered) return

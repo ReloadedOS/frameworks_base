@@ -44,11 +44,9 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/auto_brightness_icon_bg"
-            android:backgroundTint="?android:attr/colorAccent"
-            android:src="@drawable/ic_brightness_full"
-            android:tint="?androidprv:attr/colorSurface"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_qs_brightness_auto_off"
+            android:src="@drawable/ic_qs_brightness_auto_off"
             android:scaleType="centerInside"
         />
     </com.android.systemui.settings.brightness.BrightnessSliderView>

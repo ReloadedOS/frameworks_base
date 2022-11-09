@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.ArraySet;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,7 @@ public class BrightnessMirrorController
     private int mLastBrightnessSliderWidth = -1;
     @Nullable
     private ImageView mAutoBrightnessIcon = null;
-    private int mAutoBrightnessIconResId = -1;
+    private Pair<Integer, Integer> mAutoBrightnessIconResIdPair = null;
     private boolean mAutoBrightnessIconVisible = false;
 
     public BrightnessMirrorController(NotificationShadeWindowView statusBarWindow,
@@ -142,11 +143,12 @@ public class BrightnessMirrorController
         reinflate();
     }
 
-    public void updateAutoBrightnessIcon(int resId) {
-        if (mAutoBrightnessIconResId == resId) return;
-        mAutoBrightnessIconResId = resId;
+    public void updateAutoBrightnessIcon(Pair<Integer, Integer> pair) {
+        if (mAutoBrightnessIconResIdPair == pair) return;
+        mAutoBrightnessIconResIdPair = pair;
         if (mAutoBrightnessIcon == null) return;
-        mAutoBrightnessIcon.setImageResource(mAutoBrightnessIconResId);
+        mAutoBrightnessIcon.setImageResource(pair.first);
+        mAutoBrightnessIcon.setBackgroundResource(pair.second);
     }
 
     public void setAutoBrightnessIconVisibile(boolean visible) {
@@ -165,8 +167,9 @@ public class BrightnessMirrorController
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         mAutoBrightnessIcon = controller.getRootView().findViewById(R.id.auto_brightness_icon);
         mAutoBrightnessIcon.setVisibility(mAutoBrightnessIconVisible ? View.VISIBLE : View.GONE);
-        if (mAutoBrightnessIconResId != -1) {
-            mAutoBrightnessIcon.setImageResource(mAutoBrightnessIconResId);
+        if (mAutoBrightnessIconResIdPair != null) {
+            mAutoBrightnessIcon.setImageResource(mAutoBrightnessIconResIdPair.first);
+            mAutoBrightnessIcon.setBackgroundResource(mAutoBrightnessIconResIdPair.second);
         }
         return controller;
     }
