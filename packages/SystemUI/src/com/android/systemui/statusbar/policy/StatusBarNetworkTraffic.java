@@ -27,8 +27,6 @@ import android.util.AttributeSet;
 import com.android.systemui.Dependency;
 import com.android.systemui.plugins.DarkIconDispatcher;
 import com.android.systemui.statusbar.StatusIconDisplayable;
-import com.android.keyguard.KeyguardUpdateMonitor;
-import com.android.keyguard.KeyguardUpdateMonitorCallback;
 
 import java.util.ArrayList;
 
@@ -41,9 +39,6 @@ public class StatusBarNetworkTraffic extends NetworkTraffic implements StatusIco
     private boolean mSystemIconVisible = true;
     private boolean mColorIsStatic;
 
-    private final KeyguardUpdateMonitor mKeyguardUpdateMonitor;
-    private boolean mKeyguardShowing;
-
     public StatusBarNetworkTraffic(Context context) {
         this(context, null);
     }
@@ -55,9 +50,6 @@ public class StatusBarNetworkTraffic extends NetworkTraffic implements StatusIco
     public StatusBarNetworkTraffic(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setVisibleState(STATE_ICON);
-
-        mKeyguardUpdateMonitor = Dependency.get(KeyguardUpdateMonitor.class);
-        mKeyguardUpdateMonitor.registerCallback(mUpdateCallback);
     }
 
     @Override
@@ -114,15 +106,6 @@ public class StatusBarNetworkTraffic extends NetworkTraffic implements StatusIco
         }
     }
 
-    private final KeyguardUpdateMonitorCallback mUpdateCallback =
-            new KeyguardUpdateMonitorCallback() {
-                @Override
-                public void onKeyguardVisibilityChanged(boolean showing) {
-                    mKeyguardShowing = showing;
-                    updateVisibility();
-                }
-            };
-
     @Override
     protected void setEnabled() {
         mEnabled = mLocation == LOCATION_STATUSBAR;
@@ -130,7 +113,7 @@ public class StatusBarNetworkTraffic extends NetworkTraffic implements StatusIco
 
     @Override
     protected void updateVisibility() {
-        boolean visible = mEnabled && mIsActive && !mKeyguardShowing && mSystemIconVisible
+        boolean visible = mEnabled && mIsActive && mSystemIconVisible
             && getText() != "";
         if (visible != mVisible) {
             mVisible = visible;
