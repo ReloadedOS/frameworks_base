@@ -22,4 +22,7 @@
     <!-- Bluetooth dialog -->
     <dimen name="bluetooth_dialog_active_device_bottom_margin">4dp</dimen>
 
+    <!-- Start padding for the statusbar network traffic indicator -->
+    <dimen name="status_bar_network_traffic_padding_start">4dp</dimen>
+
 </resources>
