@@ -43,6 +43,7 @@ import com.android.systemui.statusbar.policy.UserInfoController
 import com.android.systemui.statusbar.policy.UserInfoController.OnUserInfoChangedListener
 import com.android.systemui.util.ViewController
 import com.android.systemui.util.settings.GlobalSettings
+import com.android.systemui.util.settings.SecureSettings
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
@@ -67,8 +68,9 @@ internal class FooterActionsController @Inject constructor(
     private val metricsLogger: MetricsLogger,
     private val globalActionsDialogProvider: Provider<GlobalActionsDialogLite>,
     private val uiEventLogger: UiEventLogger,
-    @Named(PM_LITE_ENABLED) private val showPMLiteButton: Boolean,
+    @Named(PM_LITE_ENABLED) private val pmLiteEnabled: Boolean,
     private val globalSetting: GlobalSettings,
+    private val secureSetting: SecureSettings,
     private val handler: Handler
 ) : ViewController<FooterActionsView>(view) {
 
@@ -76,6 +78,7 @@ internal class FooterActionsController @Inject constructor(
 
     private var lastExpansion = -1f
     private var listening: Boolean = false
+    private var showPMLiteButton = pmLiteEnabled
 
     private val alphaAnimator = TouchAnimator.Builder()
             .addFloat(mView, "alpha", 0f, 1f)
@@ -158,12 +161,7 @@ internal class FooterActionsController @Inject constructor(
     @VisibleForTesting
     public override fun onViewAttached() {
         globalActionsDialog = globalActionsDialogProvider.get()
-        if (showPMLiteButton) {
-            powerMenuLite.visibility = View.VISIBLE
-            powerMenuLite.setOnClickListener(onClickListener)
-        } else {
-            powerMenuLite.visibility = View.GONE
-        }
+        updatePmLiteVisibility()
         settingsButtonContainer.setOnClickListener(onClickListener)
         multiUserSetting.isListening = true
 
@@ -194,6 +192,15 @@ internal class FooterActionsController @Inject constructor(
 
     private fun updateView() {
         mView.updateEverything(multiUserSwitchController.isMultiUserEnabled)
+    }
+
+    private fun updatePmLiteVisibility() {
+        if (showPMLiteButton) {
+            powerMenuLite.visibility = View.VISIBLE
+            powerMenuLite.setOnClickListener(onClickListener)
+        } else {
+            powerMenuLite.visibility = View.GONE
+        }
     }
 
     override fun onViewDetached() {
@@ -229,5 +236,11 @@ internal class FooterActionsController @Inject constructor(
 
     fun setKeyguardShowing(showing: Boolean) {
         setExpansion(lastExpansion)
+        if (!pmLiteEnabled) {
+            return
+        }
+        showPMLiteButton = !showing || secureSetting.getIntForUser(
+                Settings.Secure.POWER_MENU_HIDE_ON_SECURE, 0, userTracker.userId) == 0
+        updatePmLiteVisibility()
     }
 }
