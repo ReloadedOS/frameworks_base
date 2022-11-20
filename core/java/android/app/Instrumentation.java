@@ -56,6 +56,7 @@ import android.view.Window;
 import android.view.WindowManagerGlobal;
 
 import com.android.internal.content.ReferrerIntent;
+import com.android.internal.util.GamesPropsUtils;
 import com.android.internal.util.PixelPropsUtils;
 
 import java.io.File;
@@ -1245,6 +1246,7 @@ public class Instrumentation {
                 .instantiateApplication(cl, className);
         app.attach(context);
         PixelPropsUtils.setProps(context);
+        GamesPropsUtils.setProps(context);
         return app;
     }
     
@@ -1263,6 +1265,7 @@ public class Instrumentation {
         Application app = (Application)clazz.newInstance();
         app.attach(context);
         PixelPropsUtils.setProps(context);
+        GamesPropsUtils.setProps(context);
         return app;
     }
 
