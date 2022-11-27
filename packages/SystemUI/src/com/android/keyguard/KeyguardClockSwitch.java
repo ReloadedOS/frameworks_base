@@ -7,8 +7,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.Typeface;
-import android.os.SystemProperties;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -38,9 +36,6 @@ import java.util.TimeZone;
 public class KeyguardClockSwitch extends RelativeLayout {
 
     private static final String TAG = "KeyguardClockSwitch";
-
-    private static final String PROP_RELOADED_BUILD_VARIANT = "ro.reloaded.build_variant";
-    private static final String RELOADED_BUILD_VARIANT_GAPPS = "GAPPS";
 
     private static final long CLOCK_OUT_MILLIS = 150;
     private static final long CLOCK_IN_MILLIS = 200;
@@ -113,18 +108,6 @@ public class KeyguardClockSwitch extends RelativeLayout {
                 R.dimen.keyguard_smartspace_top_offset);
     }
 
-    public void onThemeChanged() {
-        // We use Google Sans as the default in GAPPS builds.
-        String defaultFont = SystemProperties.get(PROP_RELOADED_BUILD_VARIANT)
-                .equals(RELOADED_BUILD_VARIANT_GAPPS) ? "google-sans" : "sans-serif";
-        String font = mContext.getString(com.android.internal.R.string.config_headlineFontFamily);
-        Typeface tf = font.equals(defaultFont)
-                ? mContext.getResources().getFont(R.font.clock)
-                : Typeface.create(font, Typeface.NORMAL);
-        mClockView.setTypeface(tf);
-        mLargeClockView.setTypeface(tf);
-    }
-
     /**
      * Returns if this view is presenting a custom clock, or the default implementation.
      */
@@ -143,7 +126,6 @@ public class KeyguardClockSwitch extends RelativeLayout {
         mStatusArea = findViewById(R.id.keyguard_status_area);
 
         onDensityOrFontScaleChanged();
-        onThemeChanged();
     }
 
     void setClockPlugin(ClockPlugin plugin, int statusBarState) {
