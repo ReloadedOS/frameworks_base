@@ -128,6 +128,7 @@ class LargeScreenShadeHeaderController @Inject constructor(
     private val batteryIcon: BatteryMeterView = header.findViewById(R.id.batteryRemainingIcon)
     private val clock: TextView = header.findViewById(R.id.clock)
     private val date: TextView = header.findViewById(R.id.date)
+    private val networkTraffic: TextView = header.findViewById(R.id.networkTraffic)
     private val iconContainer: StatusIconContainer = header.findViewById(R.id.statusIcons)
     private val qsCarrierGroup: QSCarrierGroup = header.findViewById(R.id.carrier_group)
 
@@ -243,6 +244,7 @@ class LargeScreenShadeHeaderController @Inject constructor(
         override fun onDensityOrFontScaleChanged() {
             clock.setTextAppearance(R.style.TextAppearance_QS_Status)
             date.setTextAppearance(R.style.TextAppearance_QS_Status)
+            networkTraffic.setTextAppearance(R.style.TextAppearance_QS_Status)
             qsCarrierGroup.updateTextAppearance(R.style.TextAppearance_QS_Status_Carriers)
             if (header is MotionLayout) {
                 loadConstraints()

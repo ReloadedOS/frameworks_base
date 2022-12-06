@@ -38,6 +38,7 @@ import android.text.style.CharacterStyle;
 import android.text.style.RelativeSizeSpan;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
+import android.util.ArraySet;
 import android.view.Display;
 import android.view.View;
 import android.widget.TextView;
@@ -52,6 +53,7 @@ import com.android.systemui.plugins.DarkIconDispatcher;
 import com.android.systemui.plugins.DarkIconDispatcher.DarkReceiver;
 import com.android.systemui.settings.CurrentUserTracker;
 import com.android.systemui.statusbar.CommandQueue;
+import com.android.systemui.statusbar.phone.StatusBarIconController;
 import com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener;
 import com.android.systemui.tuner.TunerService;
 import com.android.systemui.tuner.TunerService.Tunable;
@@ -87,6 +89,7 @@ public class Clock extends TextView implements
 
     private boolean mClockVisibleByPolicy = true;
     private boolean mClockVisibleByUser = getVisibility() == View.VISIBLE;
+    private boolean mNetworkTrafficEnabled;
 
     private boolean mAttached;
     private boolean mScreenReceiverRegistered;
@@ -322,6 +325,11 @@ public class Clock extends TextView implements
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
+        if (mNetworkTrafficEnabled) {
+            // Maintain consistent padding for network traffic
+            return;
+        }
+
         int chars = getText().length();
         if (chars != mCharsAtCurrentWidth) {
             mCharsAtCurrentWidth = chars;
@@ -342,6 +350,9 @@ public class Clock extends TextView implements
         if (CLOCK_SECONDS.equals(key)) {
             mShowSeconds = TunerService.parseIntegerSwitch(newValue, false);
             updateShowSeconds();
+            ArraySet<String> hideList =
+                    StatusBarIconController.getIconHideList(getContext(), newValue);
+            mNetworkTrafficEnabled = !hideList.contains(NetworkTraffic.SLOT);
         } else if (CLOCK_STYLE.equals(key)) {
             mAmPmStyle = TunerService.parseInteger(newValue, AM_PM_STYLE_GONE);
             // Force refresh of dependent variables.

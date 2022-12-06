@@ -51,6 +51,7 @@ public class PhoneStatusBarView extends FrameLayout {
 
     private DarkReceiver mBattery;
     private ClockController mClockController;
+    private DarkReceiver mNetworkTraffic;
     private int mRotationOrientation = -1;
     @Nullable
     private View mCutoutSpace;
@@ -92,6 +93,7 @@ public class PhoneStatusBarView extends FrameLayout {
         super.onFinishInflate();
         mBattery = findViewById(R.id.battery);
         mClockController = new ClockController(getContext(), this);
+        mNetworkTraffic = findViewById(R.id.network_traffic);
         mCutoutSpace = findViewById(R.id.cutout_space_view);
         mStatusBarContents = (ViewGroup) findViewById(R.id.status_bar_contents);
 
@@ -103,6 +105,7 @@ public class PhoneStatusBarView extends FrameLayout {
         super.onAttachedToWindow();
         // Always have Battery meters in the status bar observe the dark/light modes.
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mBattery);
+        Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mNetworkTraffic);
         mClockController.addDarkReceiver();
         if (updateDisplayParameters()) {
             updateLayoutForCutout();
@@ -113,6 +116,7 @@ public class PhoneStatusBarView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         Dependency.get(DarkIconDispatcher.class).removeDarkReceiver(mBattery);
+        Dependency.get(DarkIconDispatcher.class).removeDarkReceiver(mNetworkTraffic);
         mClockController.removeDarkReceiver();
         mDisplayCutout = null;
     }

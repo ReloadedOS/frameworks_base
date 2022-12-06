@@ -93,6 +93,7 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
     private View mRightLayout;
     private View mDateContainer;
     private View mPrivacyContainer;
+    private View mTrafficView;
 
     private BatteryMeterView mBatteryRemainingIcon;
     private StatusIconContainer mIconContainer;
@@ -164,6 +165,7 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
         mRightLayout = findViewById(R.id.rightLayout);
         mDateContainer = findViewById(R.id.date_container);
         mPrivacyContainer = findViewById(R.id.privacy_container);
+        mTrafficView = findViewById(R.id.networkTraffic);
 
         mClockContainer = findViewById(R.id.clock_container);
         mClockView = findViewById(R.id.clock);
@@ -186,6 +188,7 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
         mIconsAlphaAnimatorFixed = new TouchAnimator.Builder()
                 .addFloat(mIconContainer, "alpha", 0, 1)
                 .addFloat(mBatteryRemainingIcon, "alpha", 0, 1)
+                .addFloat(mTrafficView, "alpha", 0, 1)
                 .build();
 
         Dependency.get(TunerService.class).addTunable(this,
@@ -453,6 +456,7 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
             mIconsAlphaAnimator = null;
             mIconContainer.setAlpha(1);
             mBatteryRemainingIcon.setAlpha(1);
+            mTrafficView.setAlpha(1);
         }
         setBatteryClickable(mExpanded || !visibility);
     }
