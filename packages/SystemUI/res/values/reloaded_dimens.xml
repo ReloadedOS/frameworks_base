@@ -19,4 +19,10 @@
     <!-- Width of the battery icon in the status bar when set to circle style. -->
     <dimen name="status_bar_battery_icon_circle_width">14.5dp</dimen>
 
+    <!-- Mobile data type icon -->
+    <dimen name="mobile_type_icon_height">12dp</dimen>
+    <dimen name="mobile_type_icon_height_with_activity">8dp</dimen>
+    <dimen name="mobile_type_icon_margin_vertical">1.5dp</dimen>
+    <dimen name="mobile_type_icon_inset_vertical">-2dp</dimen>
+
 </resources>
