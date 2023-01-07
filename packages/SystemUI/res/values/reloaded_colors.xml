@@ -1,0 +1,11 @@
+<!--
+     Copyright (C) 2023 ReloadedOS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Keyguard buttons (udfps, affordance etc.) -->
+    <color name="keyguard_button_fg_color">@android:color/white</color>
+    <color name="keyguard_button_bg_color">#80000000</color>
+
+</resources>
