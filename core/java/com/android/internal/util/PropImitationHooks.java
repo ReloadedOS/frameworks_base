@@ -51,15 +51,35 @@ public class PropImitationHooks {
     private static final boolean sSpoofPhotos =
             Resources.getSystem().getBoolean(R.bool.config_spoofGooglePhotos);
 
+    private static final String sNetflixModel =
+            Resources.getSystem().getString(R.string.config_netflixSpoofModel);
+
+    private static final boolean sSpoofGapps =
+            Resources.getSystem().getBoolean(R.bool.config_spoofGoogleApps);
+
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
+    private static final String PACKAGE_ASI = "com.google.android.as";
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
-    private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
     private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
+    private static final String PACKAGE_NETFLIX = "com.netflix.mediaclient";
     private static final String PACKAGE_SNAPCHAT = "com.snapchat.android";
+    private static final String PACKAGE_VELVET = "com.google.android.googlequicksearchbox";
+
+    private static final String PROCESS_GMS_PERSISTENT = PACKAGE_GMS + ".persistent";
+    private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
+
+    private static final Map<String, Object> sPixelProps = Map.of(
+        "BRAND", "google",
+        "MANUFACTURER", "Google",
+        "DEVICE", "redfin",
+        "PRODUCT", "redfin",
+        "MODEL", "Pixel 5",
+        "FINGERPRINT", "google/redfin/redfin:13/TQ1A.230105.001/9292298:user/release-keys"
+    );
 
     private static final Map<String, Object> sPixelXLProps = Map.of(
         "BRAND", "google",
@@ -100,16 +120,27 @@ public class PropImitationHooks {
 
         /* Set certified properties for GMSCore
          * Set stock fingerprint for ARCore
+         * Set Pixel 5 for Google, ASI and GMS device configurator
          * Set Pixel XL for Google Photos and Snapchat
+         * Set custom model for Netflix
          */
         if (sIsGms) {
             setCertifiedPropsForGms();
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
+        } else if (sSpoofGapps && (packageName.equals(PACKAGE_VELVET)
+                || packageName.equals(PACKAGE_ASI)
+                || (packageName.equals(PACKAGE_GMS)
+                    && processName.equals(PROCESS_GMS_PERSISTENT)))) {
+            dlog("Spoofing Pixel 5 for: " + packageName + " process: " + processName);
+            sPixelProps.forEach(PropImitationHooks::setPropValue);
         } else if (sIsPhotos || packageName.equals(PACKAGE_SNAPCHAT)) {
             dlog("Spoofing Pixel XL for: " + packageName);
             sPixelXLProps.forEach(PropImitationHooks::setPropValue);
+        } else if (!sNetflixModel.isEmpty() && packageName.equals(PACKAGE_NETFLIX)) {
+            dlog("Setting model to " + sNetflixModel + " for Netflix");
+            setPropValue("MODEL", sNetflixModel);
         }
     }
 
