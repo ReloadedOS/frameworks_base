@@ -113,6 +113,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     private final KeyguardStateController mKeyguardStateController;
     private final NotificationPanelViewController mNotificationPanelViewController;
     private final NetworkController mNetworkController;
+    private LinearLayout mSystemIconArea;
     private LinearLayout mEndSideContent;
     private View mTrafficView;
     private View mOngoingCallChip;
@@ -512,6 +513,11 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
             return true;
         }
         return mStatusBarHideIconsForBouncerManager.getShouldHideStatusBarIconsForBouncer();
+    }
+
+
+    private void hideSystemIconArea(boolean animate) {
+        animateHide(mSystemIconArea, animate);
     }
 
     private void hideEndSideContent(boolean animate) {
