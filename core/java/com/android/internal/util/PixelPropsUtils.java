@@ -87,9 +87,6 @@ public class PixelPropsUtils {
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
 
-    private static final String GMS_FINGERPRINT =
-            SystemProperties.get("ro.build.gms_fingerprint");
-
     private static volatile boolean sIsGms = false;
     private static volatile boolean sIsFinsky = false;
     private static volatile boolean sIsPhotos = false;
@@ -113,8 +110,10 @@ public class PixelPropsUtils {
 
         if (sIsGms) {
             dlog("Spoofing build for GMS");
-            setPropValue("FINGERPRINT", GMS_FINGERPRINT);
-            setPropValue("MODEL", Build.MODEL + "\u200b");
+            setPropValue("FINGERPRINT", "google/marlin/marlin:7.1.2/NJH47F/4146041:user/release-keys");
+            setPropValue("PRODUCT", "marlin");
+            setPropValue("DEVICE", "marlin");
+            setPropValue("MODEL", "Pixel XL");
         } else if (sIsPhotos) {
             dlog("Spoofing Pixel XL for Google Photos");
             sPixelXLProps.forEach(PixelPropsUtils::setPropValue);
