@@ -16,29 +16,6 @@
 -->
 <resources>
 
-    <!-- Build properties from a GMS certified device against current platform SPL level -->
-    <string-array name="config_certifiedBuildProperties" translatable="false">
-      <!-- 
-        <item>Build.DEVICE</item>
-        <item>Build.PRODUCT</item>
-        <item>Build.MODEL</item>
-        <item>Build.FINGERPRINT</item>
-      -->
-    </string-array>
-
-    <!-- Build fingerprint from the stock ROM -->
-    <string name="config_stockFingerprint" translatable="false"></string>
-
-    <!-- Whether to spoof device as Pixel XL for Google Photos -->
-    <bool name="config_spoofGooglePhotos">true</bool>
-
-    <!-- Device model (Build.MODEL) to spoof for netflix, if not empty -->
-    <string name="config_netflixSpoofModel" translatable="false"></string>
-
-    <!-- Whether to spoof device as pixel for certain google apps, to
-         unlock pixel-exclusive features -->
-    <bool name="config_spoofGoogleApps">false</bool>
-
     <!-- The list of components which should be automatically disabled for all devices. -->
     <string-array name="config_globallyDisabledComponents" translatable="false">
     </string-array>
