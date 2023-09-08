@@ -234,7 +234,6 @@ import com.android.systemui.statusbar.policy.KeyguardUserSwitcherController;
 import com.android.systemui.statusbar.policy.KeyguardUserSwitcherView;
 import com.android.systemui.statusbar.policy.OnHeadsUpChangedListener;
 import com.android.systemui.statusbar.window.StatusBarWindowStateController;
-import com.android.systemui.tuner.TunerService;
 import com.android.systemui.unfold.SysUIUnfoldComponent;
 import com.android.systemui.util.Compile;
 import com.android.systemui.util.LargeScreenUtils;
@@ -392,9 +391,6 @@ public final class NotificationPanelViewController implements Dumpable {
     private float mKeyguardNotificationTopPadding;
     /** Current max allowed keyguard notifications determined by measuring the panel. */
     private int mMaxAllowedKeyguardNotifications;
-
-    private final TunerService mTunerService;
-
     private KeyguardQsUserSwitchController mKeyguardQsUserSwitchController;
     private KeyguardUserSwitcherController mKeyguardUserSwitcherController;
     private KeyguardStatusBarView mKeyguardStatusBar;
@@ -542,8 +538,6 @@ public final class NotificationPanelViewController implements Dumpable {
 
     private final ContentResolver mContentResolver;
     private float mMinFraction;
-
-    private int mOneFingerQuickSettingsIntercept;
 
     private final KeyguardMediaController mKeyguardMediaController;
 
@@ -768,8 +762,7 @@ public final class NotificationPanelViewController implements Dumpable {
             KeyguardTransitionInteractor keyguardTransitionInteractor,
             DumpManager dumpManager,
             KeyguardLongPressViewModel keyguardLongPressViewModel,
-            KeyguardInteractor keyguardInteractor,
-            TunerService tunerService) {
+            KeyguardInteractor keyguardInteractor) {
         mInteractionJankMonitor = interactionJankMonitor;
         keyguardStateController.addCallback(new KeyguardStateController.Callback() {
             @Override
@@ -865,7 +858,6 @@ public final class NotificationPanelViewController implements Dumpable {
                 LargeScreenUtils.shouldUseSplitNotificationShade(mResources);
         mView.setWillNotDraw(!DEBUG_DRAWABLE);
         mShadeHeaderController = shadeHeaderController;
-        mTunerService = tunerService;
         mLayoutInflater = layoutInflater;
         mFeatureFlags = featureFlags;
         mFalsingCollector = falsingCollector;
@@ -4532,8 +4524,7 @@ public final class NotificationPanelViewController implements Dumpable {
         positionClockAndNotifications(true /* forceUpdate */);
     }
 
-    private final class ShadeAttachStateChangeListener implements View.OnAttachStateChangeListener,
-            TunerService.Tunable {
+    private final class ShadeAttachStateChangeListener implements View.OnAttachStateChangeListener {
         @Override
         public void onViewAttachedToWindow(View v) {
             mFragmentService.getFragmentHostManager(mView)
@@ -4541,7 +4532,6 @@ public final class NotificationPanelViewController implements Dumpable {
             mStatusBarStateController.addCallback(mStatusBarStateListener);
             mStatusBarStateListener.onStateChanged(mStatusBarStateController.getState());
             mConfigurationController.addCallback(mConfigurationListener);
-            mTunerService.addTunable(this, Settings.Secure.STATUS_BAR_QUICK_QS_PULLDOWN);
             // Theme might have changed between inflating this view and attaching it to the
             // window, so
             // force a call to onThemeChanged
@@ -4558,15 +4548,7 @@ public final class NotificationPanelViewController implements Dumpable {
                     .removeTagListener(QS.TAG, mQsController.getQsFragmentListener());
             mStatusBarStateController.removeCallback(mStatusBarStateListener);
             mConfigurationController.removeCallback(mConfigurationListener);
-            mTunerService.removeTunable(this);
             mFalsingManager.removeTapListener(mFalsingTapListener);
-        }
-
-        @Override
-        public void onTuningChanged(String key, String newValue) {
-            if (Settings.Secure.STATUS_BAR_QUICK_QS_PULLDOWN.equals(key)) {
-                mOneFingerQuickSettingsIntercept = TunerService.parseInteger(newValue, 1);
-            }
         }
     }
 
