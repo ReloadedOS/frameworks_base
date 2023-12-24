@@ -758,7 +758,7 @@ object Flags {
     // TODO(b/283740863): Tracking Bug
     @JvmField
     val ENABLE_NEW_PRIVACY_DIALOG =
-            unreleasedFlag(283740863, "enable_new_privacy_dialog", teamfood = false)
+            releasedFlag(283740863, "enable_new_privacy_dialog")
 
     // 2900 - CentralSurfaces-related flags
 
