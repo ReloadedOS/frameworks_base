@@ -83,16 +83,7 @@ public class PropImitationHooks {
         "MANUFACTURER", "Google",
         "BRAND", "google",
         "MODEL", "Pixel 8 Pro",
-        "FINGERPRINT", "google/husky/husky:14/UQ1A.231205.015/11084887:user/release-keys"
-    );
-
-    private static final Map<String, String> sPixelFiveProps = Map.of(
-        "PRODUCT", "redfin",
-        "DEVICE", "redfin",
-        "MANUFACTURER", "Google",
-        "BRAND", "google",
-        "MODEL", "Pixel 5",
-        "FINGERPRINT", "google/redfin/redfin:13/TQ3A.230901.001/10750268:user/release-keys"
+        "FINGERPRINT", "google/husky/husky:14/UQ1A.240105.004/11206848:user/release-keys"
     );
 
     private static final Map<String, String> sPixelOneProps = Map.of(
@@ -147,8 +138,7 @@ public class PropImitationHooks {
 
         /* Set certified properties for GMSCore
          * Set stock fingerprint for ARCore
-         * Set Pixel 8 Pro for Google and GMS device configurator
-         * Set Pixel 5 for ASI
+         * Set Pixel 8 Pro for ASI, Google and GMS device configurator
          * Set Pixel XL for Google Photos
          * Set custom model for Netflix
          */
@@ -157,14 +147,11 @@ public class PropImitationHooks {
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
-        } else if (packageName.equals(PACKAGE_ASI)) {
-            dlog("Spoofing Pixel 5 for: " + packageName);
-            sPixelFiveProps.forEach(PropImitationHooks::setPropValue);
-        } else if (sSpoofGapps && (packageName.equals(PACKAGE_AIWALLPAPERS) || packageName.equals(PACKAGE_ASSISTANT) || packageName.equals(PACKAGE_EMOJIWALLPAPER)
-                || packageName.equals(PACKAGE_GBOARD) || packageName.equals(PACKAGE_LIVEWALLPAPER) || packageName.equals(PACKAGE_PIXELTHEMES)
-                || packageName.equals(PACKAGE_PIXELWALLPAPER) || packageName.equals(PACKAGE_SETUPWIZARD) || packageName.equals(PACKAGE_SMS_ORGANIZER)
-                || packageName.equals(PACKAGE_SUBSCRIPTION_RED) || packageName.equals(PACKAGE_TURBO) || packageName.equals(PACKAGE_VELVET)
-                || packageName.equals(PACKAGE_WALLPAPER) || packageName.equals(PACKAGE_WALLPAPEREFFECTS)
+        } else if (sSpoofGapps && (packageName.equals(PACKAGE_AIWALLPAPERS) || packageName.equals(PACKAGE_ASSISTANT) || packageName.equals(PACKAGE_ASI)
+                || packageName.equals(PACKAGE_EMOJIWALLPAPER) || packageName.equals(PACKAGE_GBOARD) || packageName.equals(PACKAGE_LIVEWALLPAPER)
+                || packageName.equals(PACKAGE_PIXELTHEMES) || packageName.equals(PACKAGE_PIXELWALLPAPER) || packageName.equals(PACKAGE_SETUPWIZARD)
+                || packageName.equals(PACKAGE_SMS_ORGANIZER) || packageName.equals(PACKAGE_SUBSCRIPTION_RED) || packageName.equals(PACKAGE_TURBO)
+                || packageName.equals(PACKAGE_VELVET) || packageName.equals(PACKAGE_WALLPAPER) || packageName.equals(PACKAGE_WALLPAPEREFFECTS)
                 || (packageName.equals(PACKAGE_GMS) && processName.equals(PROCESS_GMS_PERSISTENT)))) {
             dlog("Spoofing Pixel 8 Pro for: " + packageName + " process: " + processName);
             sPixelEightProps.forEach(PropImitationHooks::setPropValue);
