@@ -40,4 +40,7 @@
     <!-- Whether to show WiFi/Hotspot standard -->
     <java-symbol type="bool" name="config_show_network_standard" />
 
+    <!-- Build properties from a GMS certified device -->
+    <java-symbol type="array" name="config_certifiedBuildProperties" />
+
 </resources>
